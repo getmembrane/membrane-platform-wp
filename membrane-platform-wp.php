@@ -61,19 +61,23 @@ function custom_fields($fields)
   return $fields;
 }
 
-// Add the filter to call the membrane api and assess the client
-add_filter( 'preprocess_comment', 'assess_membrane_client' );
-function assess_membrane_client( $commentdata ) {
+add_filter( 'pre_comment_approved' , 'comment_assessment' , '99', 2 );
+function comment_assessment( $approved , $commentdata )
+{
   if (!empty($_POST['membrane_client'])) {
       $response = wp_remote_get(MEMBRANE_API_URL.'clients/'.$_POST['membrane_client']);
       $body = json_decode($response['body'],true);
 
-      if($body['assessment'] === 'reject') {
-          wp_set_comment_status($commentdata['id'],'spam');
+      switch ($body['assessment']) {
+          case 'accept':
+            return 1;
+            break;
+          case 'reject':
+            return 0;
+            break;
       }
-      die('<pre>'.print_r($commentdata).'</pre>');
   }
-  return $commentdata;
+  return 1;
 }
 
 // Save the comment meta data along with comment
