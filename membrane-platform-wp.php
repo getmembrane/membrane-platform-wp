@@ -66,7 +66,7 @@ function comment_assessment( $approved , $commentdata )
 {
   if (!empty($_POST['membrane_client'])) {
       $response = wp_remote_get(MEMBRANE_API_URL.'clients/'.$_POST['membrane_client']);
-      $body = json_decode($response['body'],true);
+      $body = wp_remote_retrieve_body( $response );
 
       switch ($body['assessment']) {
           case 'accept':
